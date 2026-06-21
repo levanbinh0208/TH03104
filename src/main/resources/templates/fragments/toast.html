@@ -1,0 +1,39 @@
+<div th:fragment="toast">
+
+    <div th:if="${successMessage}"
+         id="toast-success"
+         class="toast toast-success">
+
+        <div class="toast-content">
+            <span class="toast-icon">✓</span>
+
+            <div class="toast-text">
+                <strong>Thành công</strong>
+                <p th:text="${successMessage}"></p>
+            </div>
+        </div>
+
+        <button class="toast-close" onclick="closeToast()">
+            ✕
+        </button>
+    </div>
+
+    <div th:if="${errorMessage}"
+         id="toast-error"
+         class="toast toast-error">
+
+        <div class="toast-content">
+            <span class="toast-icon">!</span>
+
+            <div class="toast-text">
+                <strong>Lỗi</strong>
+                <p th:text="${errorMessage}"></p>
+            </div>
+        </div>
+
+        <button class="toast-close" onclick="closeToast()">
+            ✕
+        </button>
+    </div>
+
+</div>

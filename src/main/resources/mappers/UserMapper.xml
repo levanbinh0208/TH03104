@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.com//DTD Mapper 3.0//EN"
+        "http://mybatis.com/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.phone_store.mapper.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.example.phone_store.entity.User">
+        <id     column="UserId"       property="userId"/>
+        <result column="FullName"     property="fullName"/>
+        <result column="Email"        property="email"/>
+        <result column="PasswordHash" property="passwordHash"/>
+        <result column="Phone"        property="phone"/>
+        <result column="Username"     property="userName"/>
+        <result column="Address"      property="address"/>
+        <result column="RoleName"     property="roleName"/>
+        <result column="CreatedAt"    property="createdAt"/>
+    </resultMap>
+
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT UserId, FullName, Email, PasswordHash, Phone, Address, RoleName, CreatedAt, Username
+        FROM Users
+        WHERE Username = #{username}
+    </select>
+
+    <select id="findById" resultMap="UserResultMap">
+        SELECT UserId, FullName, Email, PasswordHash, Phone, Address, RoleName, CreatedAt, Username
+        FROM Users
+        WHERE UserId = #{id}
+    </select>
+
+    <select id="findAll" resultMap="UserResultMap">
+        SELECT UserId, FullName, Username, Email, Phone, Address, RoleName, CreatedAt
+        FROM Users
+        ORDER BY CreatedAt DESC
+    </select>
+
+    <insert id="insert" parameterType="com.example.phone_store.entity.User"
+            useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO Users (FullName, Username, Email, PasswordHash, Phone, Address, RoleName)
+        VALUES (#{fullName}, #{userName}, #{email}, #{passwordHash}, #{phone}, #{address}, #{roleName})
+    </insert>
+
+    <update id="updateRole">
+        UPDATE Users SET RoleName = #{roleName} WHERE UserId = #{userId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM Users WHERE UserId = #{userId}
+    </delete>
+
+    <select id="login" resultMap="UserResultMap">
+        SELECT * FROM Users
+        WHERE (Username = #{username} OR Email = #{username})
+          AND PasswordHash = #{password}
+    </select>
+
+    <select id="findByEmail" resultMap="UserResultMap">
+        SELECT * FROM Users WHERE Email = #{email}
+    </select>
+
+    <update id="updatePassword">
+        UPDATE Users
+        SET PasswordHash = #{password}
+        WHERE UserId = #{userId}
+    </update>
+
+</mapper>
