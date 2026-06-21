@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Đơn hàng - Admin</title>
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-pending    { background:#fef3c7; color:#92400e; }
+    .badge-confirmed  { background:#dbeafe; color:#1e40af; }
+    .badge-shipping   { background:#ede9fe; color:#5b21b6; }
+    .badge-delivered  { background:#d1fae5; color:#065f46; }
+    .badge-cancelled  { background:#fee2e2; color:#991b1b; }
+
+    .alert            { padding:12px 16px; border-radius:6px; margin-bottom:16px; font-size:14px; }
+    .alert-success    { background:#c6f6d5; color:#22543d; }
+    .alert-error      { background:#fed7d7; color:#742a2a; }
+
+    .toolbar          { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; flex-wrap:wrap; }
+    .search-box       { padding:8px 14px; border:1px solid #e2e8f0; border-radius:6px; font-size:14px; width:240px; }
+    .filter-select    { padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px; font-size:14px; }
+
+    .status-form      { display:inline-flex; gap:6px; align-items:center; }
+    .status-select    { padding:4px 8px; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; }
+    .btn-save         { background:#2b6cb0; color:#fff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px; }
+    .btn-save:hover   { background:#2c5282; }
+    .btn-detail       { background:#718096; color:#fff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px; text-decoration:none; }
+    .btn-detail:hover { background:#4a5568; }
+    .btn-delete       { background:#e53e3e; color:#fff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px; text-decoration:none; }
+    .btn-delete:hover { background:#c53030; }
+
+    .amount           { font-weight:600; color:#2b6cb0; white-space:nowrap; }
+    .topbar h1        { margin:0; }
+    .sidebar ul       { list-style:none; padding:0; margin-top:20px; }
+    .sidebar ul li    { margin:12px 0; }
+    .sidebar ul li a  { color:#cbd5e1; text-decoration:none; display:flex; align-items:center; gap:10px; }
+    .sidebar ul li a.active, .sidebar ul li a:hover { color:#fff; }
+    td, th            { vertical-align: middle !important; }
+
+    .payment-icon     { font-size:16px; margin-right:4px; }
+  </style>
+</head>
+<body>
+<div class="admin-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><h2>📱 PhoneStore</h2></div>
+    <nav>
+      <ul>
+        <li><a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a th:href="@{/admin/products}"><i class="fas fa-box"></i> Sản phẩm</a></li>
+        <li><a th:href="@{/admin/users}"><i class="fas fa-users"></i> Khách hàng</a></li>
+        <li><a th:href="@{/admin/orders}" class="active"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+        <li><a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <header class="topbar">
+      <h1>Quản lý Đơn hàng</h1>
+      <div class="user-info">Xin chào, <strong th:text="${fullName}"></strong></div>
+    </header>
+
+    <!-- Alerts -->
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <span>Tổng: <strong th:text="${#lists.size(orders)}"></strong> đơn hàng</span>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <select class="filter-select" id="statusFilter" onchange="filterTable()">
+          <option value="">-- Tất cả trạng thái --</option>
+          <option value="PENDING">PENDING</option>
+          <option value="CONFIRMED">CONFIRMED</option>
+          <option value="SHIPPING">SHIPPING</option>
+          <option value="DELIVERED">DELIVERED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+        <input class="search-box" type="text" id="searchInput"
+               placeholder="🔍 Tìm tên, SĐT, địa chỉ..." oninput="filterTable()">
+      </div>
+    </div>
+
+    <!-- Table -->
+    <table class="product-table" id="ordersTable">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Người nhận</th>
+        <th>SĐT</th>
+        <th>Địa chỉ</th>
+        <th>Thanh toán</th>
+        <th>Tổng tiền</th>
+        <th>Ngày đặt</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:if="${orders == null or #lists.isEmpty(orders)}">
+        <td colspan="9" style="text-align:center;padding:28px;color:#718096;">
+          Chưa có đơn hàng nào
+        </td>
+      </tr>
+      <tr th:each="o : ${orders}" th:attr="data-status=${o.status}">
+        <td style="color:#718096;font-size:13px;" th:text="'#' + ${o.orderId}"></td>
+
+        <td th:text="${o.receiverName != null ? o.receiverName : '—'}"></td>
+
+        <td th:text="${o.phone != null ? o.phone : '—'}" style="font-size:13px;"></td>
+
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;"
+            th:text="${o.shippingAddress != null ? o.shippingAddress : '—'}"
+            th:title="${o.shippingAddress}"></td>
+
+        <!-- Payment method icon -->
+        <td style="font-size:13px;">
+          <span th:if="${o.paymentMethod == 'COD'}">💵 COD</span>
+          <span th:if="${o.paymentMethod == 'BANK'}">🏦 Bank</span>
+          <span th:if="${o.paymentMethod == 'MOMO'}">💜 MoMo</span>
+          <span th:if="${o.paymentMethod == null or o.paymentMethod == ''}">—</span>
+        </td>
+
+        <td class="amount"
+            th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+        </td>
+
+        <td style="font-size:12px;color:#718096;white-space:nowrap;"
+            th:text="${o.orderDate != null ? #dates.format(o.orderDate, 'dd/MM/yyyy HH:mm') : '—'}">
+        </td>
+
+        <!-- Badge trạng thái -->
+        <td>
+                    <span class="badge"
+                          th:classappend="${o.status == 'PENDING'}    ? 'badge-pending'   :
+                                          (${o.status == 'CONFIRMED'} ? 'badge-confirmed' :
+                                          (${o.status == 'SHIPPING'}  ? 'badge-shipping'  :
+                                          (${o.status == 'DELIVERED'} ? 'badge-delivered' :
+                                          'badge-cancelled')))"
+                          th:text="${o.status}">
+                    </span>
+        </td>
+
+        <!-- Actions -->
+        <td style="white-space:nowrap;">
+          <!-- Đổi trạng thái -->
+          <form th:action="@{/admin/orders/status}" method="post" class="status-form">
+            <input type="hidden" name="orderId" th:value="${o.orderId}">
+            <select name="status" class="status-select">
+              <option value="PENDING"   th:selected="${o.status == 'PENDING'}">PENDING</option>
+              <option value="CONFIRMED" th:selected="${o.status == 'CONFIRMED'}">CONFIRMED</option>
+              <option value="SHIPPING"  th:selected="${o.status == 'SHIPPING'}">SHIPPING</option>
+              <option value="DELIVERED" th:selected="${o.status == 'DELIVERED'}">DELIVERED</option>
+              <option value="CANCELLED" th:selected="${o.status == 'CANCELLED'}">CANCELLED</option>
+            </select>
+            <button type="submit" class="btn-save">Lưu</button>
+          </form>
+          <div style="display:inline-flex;gap:4px;margin-top:4px;">
+            <a th:href="@{/admin/orders/{id}(id=${o.orderId})}" class="btn-detail">
+              <i class="fas fa-eye"></i>
+            </a>
+            <a th:href="@{/admin/orders/delete/{id}(id=${o.orderId})}"
+               class="btn-delete"
+               onclick="return confirm('Xóa đơn hàng này?')">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </main>
+</div>
+
+<script>
+  function filterTable() {
+    const q      = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value.toUpperCase();
+    const rows   = document.querySelectorAll('#ordersTable tbody tr');
+    rows.forEach(row => {
+      const text    = row.innerText.toLowerCase();
+      const rowStat = (row.dataset.status || '').toUpperCase();
+      const matchQ  = text.includes(q);
+      const matchS  = !status || rowStat === status;
+      row.style.display = (matchQ && matchS) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Sản phẩm - Admin</title>
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+  <link rel="stylesheet" th:href="@{/css/toast.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .sidebar ul { list-style:none; padding:0; margin-top:24px; }
+    .sidebar ul li { margin:4px 0; }
+    .sidebar ul li a {
+      color:#94a3b8; text-decoration:none;
+      display:flex; align-items:center; gap:10px;
+      padding:9px 12px; border-radius:7px; font-size:14px;
+      transition:background .15s,color .15s;
+    }
+    .sidebar ul li a:hover { background:#ffffff14; color:#fff; }
+    .sidebar ul li a.active { background:#2b6cb0; color:#fff; }
+
+    .btn-add {
+      display:inline-flex; align-items:center; gap:7px;
+      background:#2b6cb0; color:#fff; text-decoration:none;
+      padding:9px 16px; border-radius:7px; font-size:14px; font-weight:600;
+      transition:background .15s;
+    }
+    .btn-add:hover { background:#2c5282; }
+
+    /* ── Table ── */
+    .product-table { width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .product-table thead { background:#f8fafc; }
+    .product-table th {
+      padding:11px 14px; text-align:left; font-size:12px;
+      font-weight:700; color:#64748b; text-transform:uppercase;
+      letter-spacing:.5px; border-bottom:1px solid #e2e8f0;
+    }
+    .product-table td { padding:12px 14px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+    .product-table tbody tr:last-child td { border-bottom:none; }
+    .product-table tbody tr:hover { background:#fafbff; }
+
+    .product-img {
+      width:56px; height:56px; object-fit:contain;
+      border-radius:8px; border:1px solid #e2e8f0; background:#f8fafc;
+    }
+    .img-placeholder {
+      width:56px; height:56px; border-radius:8px;
+      background:#f1f5f9; display:flex; align-items:center;
+      justify-content:center; color:#cbd5e1; font-size:22px;
+    }
+
+    .price { font-weight:700; color:#2b6cb0; white-space:nowrap; }
+
+    .stock-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600;
+    }
+    .stock-ok   { background:#d1fae5; color:#065f46; }
+    .stock-low  { background:#fef3c7; color:#92400e; }
+    .stock-zero { background:#fee2e2; color:#991b1b; }
+
+    .action-btns { display:flex; gap:6px; }
+    .btn-edit, .btn-delete {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:5px 12px; border-radius:6px; font-size:13px;
+      font-weight:600; text-decoration:none; border:none; cursor:pointer;
+      transition:opacity .15s;
+    }
+    .btn-edit   { background:#ebf8ff; color:#2b6cb0; }
+    .btn-edit:hover { background:#bee3f8; }
+    .btn-delete { background:#fff5f5; color:#e53e3e; }
+    .btn-delete:hover { background:#fed7d7; }
+
+    .empty-state { text-align:center; padding:48px 20px; color:#94a3b8; }
+    .empty-state i { font-size:40px; margin-bottom:12px; display:block; }
+    .empty-state p { margin:0 0 16px; font-size:15px; }
+  </style>
+</head>
+<body>
+<div class="admin-container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo"><h2>📱 PhoneStore</h2></div>
+    <nav>
+      <ul>
+        <li><a th:href="@{/admin/dashboard}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a th:href="@{/admin/products}"><i class="fas fa-box"></i> Sản phẩm</a></li>
+        <li><a th:href="@{/admin/users}"><i class="fas fa-users"></i> Khách hàng</a></li>
+        <li><a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+        <li><a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="toast toast-success" th:if="${success}">
+      <div class="toast-content">
+        <i class="fas fa-circle-check"></i>
+        <span th:text="${success}"></span>
+      </div>
+
+      <button type="button" class="toast-close" onclick="closeToast()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="toast toast-error" th:if="${error}">
+      <div class="toast-content">
+        <i class="fas fa-circle-exclamation"></i>
+        <span th:text="${error}"></span>
+      </div>
+
+      <button type="button" class="toast-close" onclick="closeToast()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <header class="topbar">
+      <h1>Quản lý Sản phẩm</h1>
+      <a th:href="@{/admin/products/add}" class="btn-add">
+        <i class="fas fa-plus"></i> Thêm sản phẩm
+      </a>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input class="search-box" type="text" id="searchInput"
+                 placeholder="Tìm sản phẩm..." oninput="filterTable()">
+        </div>
+        <span class="count-label">
+          Tổng: <strong th:text="${products != null ? #lists.size(products) : 0}"></strong> sản phẩm
+        </span>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <table class="product-table" id="productTable">
+      <thead>
+      <tr>
+        <th>Hình ảnh</th>
+        <th>Tên sản phẩm</th>
+        <th>Giá bán</th>
+        <th>Tồn kho</th>
+        <th>Hành động</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Empty state -->
+      <tr th:if="${products == null or #lists.isEmpty(products)}" id="emptyRow">
+        <td colspan="5">
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <p>Chưa có sản phẩm nào</p>
+            <a th:href="@{/admin/products/add}" class="btn-add">
+              <i class="fas fa-plus"></i> Thêm sản phẩm đầu tiên
+            </a>
+          </div>
+        </td>
+      </tr>
+
+      <!-- Product rows -->
+      <tr th:each="p : ${products}">
+        <!-- Image -->
+        <td>
+          <img th:if="${p.imageUrl != null and !#strings.isEmpty(p.imageUrl)}"
+               th:src="@{/uploads/{f}(f=${p.imageUrl})}"
+               class="product-img" alt="">
+          <div th:unless="${p.imageUrl != null and !#strings.isEmpty(p.imageUrl)}"
+               class="img-placeholder">
+            <i class="fas fa-image"></i>
+          </div>
+        </td>
+
+        <td>
+          <span style="font-weight:600;color:#1a202c;" th:text="${p.productName}"></span>
+        </td>
+
+        <td>
+            <span class="price"
+                  th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+            </span>
+        </td>
+
+        <td>
+            <span class="stock-badge"
+                  th:classappend="${p.quantity == 0}  ? 'stock-zero' :
+                                  (${p.quantity < 5}  ? 'stock-low'  : 'stock-ok')">
+              <i class="fas fa-circle" style="font-size:7px;"></i>
+              <span th:text="${p.quantity}"></span>
+            </span>
+        </td>
+
+        <!-- Actions -->
+        <td>
+          <div class="action-btns">
+            <a th:href="@{/admin/products/edit/{id}(id=${p.productId})}" class="btn-edit">
+              <i class="fas fa-pen"></i> Sửa
+            </a>
+            <a th:href="@{/admin/products/delete/{id}(id=${p.productId})}"
+               class="btn-delete"
+               onclick="return confirm('Xóa sản phẩm này?')">
+              <i class="fas fa-trash"></i> Xóa
+            </a>
+          </div>
+        </td>
+      </tr>
+
+      <tr id="noResultRow" style="display:none;">
+        <td colspan="5" style="text-align:center;padding:32px;color:#94a3b8;font-size:14px;">
+          <i class="fas fa-search" style="margin-right:6px;"></i>Không tìm thấy sản phẩm nào
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </main>
+</div>
+
+<script>
+  function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#productTable tbody tr:not(#noResultRow):not(#emptyRow)');
+    let visible = 0;
+    rows.forEach(row => {
+      const match = row.innerText.toLowerCase().includes(q);
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    const noResult = document.getElementById('noResultRow');
+    if (noResult) noResult.style.display = (visible === 0 && rows.length > 0) ? '' : 'none';
+  }
+</script>
+<script th:src="@{/js/toast.js}"></script>
+</body>
+</html>
