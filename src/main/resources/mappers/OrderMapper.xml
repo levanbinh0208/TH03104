@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.com//DTD Mapper 3.0//EN"
+        "http://mybatis.com/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.phone_store.mapper.OrderMapper">
+
+    <resultMap id="orderMap" type="com.example.phone_store.entity.Order">
+        <id     property="orderId"         column="OrderId"/>
+        <result property="userId"          column="UserId"/>
+        <result property="totalAmount"     column="TotalAmount"/>
+        <result property="status"          column="Status"/>
+        <result property="orderDate"       column="OrderDate"/>
+        <result property="receiverName"    column="ReceiverName"/>
+        <result property="phone"           column="Phone"/>
+        <result property="shippingAddress" column="ShippingAddress"/>
+        <result property="paymentMethod"   column="PaymentMethod"/>
+    </resultMap>
+
+    <insert id="save" parameterType="com.example.phone_store.entity.Order"
+            useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO Orders (UserId, TotalAmount, Status, ReceiverName, Phone, ShippingAddress, PaymentMethod)
+        VALUES (#{userId}, #{totalAmount}, #{status}, #{receiverName}, #{phone}, #{shippingAddress}, #{paymentMethod})
+    </insert>
+
+    <select id="findByUserId" resultMap="orderMap">
+        SELECT * FROM Orders WHERE UserId = #{userId} ORDER BY OrderDate DESC
+    </select>
+
+    <select id="findAll" resultMap="orderMap">
+        SELECT * FROM Orders ORDER BY OrderDate DESC
+    </select>
+
+    <select id="findById" resultMap="orderMap">
+        SELECT * FROM Orders WHERE OrderId = #{orderId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE Orders SET Status = #{status} WHERE OrderId = #{orderId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM Orders WHERE OrderId = #{orderId}
+    </delete>
+
+</mapper>
