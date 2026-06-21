@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Store - Giỏ hàng</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/cart.css}">
+    <link rel="stylesheet" th:href="@{/css/toast.css}">
+</head>
+<body>
+<div th:replace="~{fragments/toast :: toast}"></div>
+<header>
+    <div class="header-content">
+        <h1>Phone Store</h1>
+        <nav>
+            <a th:href="@{/home}">Trang chủ</a>
+            <a th:href="@{/products}">Sản phẩm</a>
+            <a th:href="@{/cart}" class="active">Giỏ hàng</a>
+            <a th:href="@{/orders}">Đơn hàng của tôi</a>
+            <span th:if="${session.fullName}" th:text="${session.fullName}"></span>
+            <a th:href="@{/logout}" th:if="${session.fullName}">Đăng xuất</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <h2>Giỏ hàng của bạn</h2>
+
+    <div th:if="${cartItems.isEmpty()}" class="empty-cart">
+        <p>Giỏ hàng của bạn đang trống.</p>
+        <a th:href="@{/products}" class="btn-shop">Tiếp tục mua sắm</a>
+    </div>
+
+    <div th:unless="${cartItems.isEmpty()}" class="cart-wrapper">
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${cartItems}">
+                <td class="product-cell">
+                    <img th:src="@{${item.product.imageUrl}}"
+                         th:alt="${item.product.productName}">
+                    <span th:text="${item.product.productName}"></span>
+                </td>
+                <td th:text="${#numbers.formatInteger(item.product.price, 0, 'POINT')} + ' VNĐ'"></td>
+                <td>
+                    <form th:action="@{/cart/update}" method="post" class="quantity-form">
+                        <input type="hidden" name="productId" th:value="${item.product.productId}">
+                        <input type="number" name="quantity" min="1" th:value="${item.quantity}">
+                        <button type="submit">Cập nhật</button>
+                    </form>
+                </td>
+                <td th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'POINT')} + ' VNĐ'"></td>
+                <td>
+                    <a th:href="@{/cart/remove/{id}(id=${item.product.productId})}"
+                       class="btn-remove"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')">
+                        Xóa
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <p>Tổng cộng: <strong th:text="${#numbers.formatInteger(total, 0, 'POINT')} + ' VNĐ'"></strong></p>
+            <a th:href="@{/cart/clear}" class="btn-clear">Xóa giỏ hàng</a>
+            <a th:href="@{/cart/checkout}" class="btn-checkout">Thanh toán</a>
+        </div>
+    </div>
+</main>
+<script th:src="@{/js/toast.js}"></script>
+</body>
+</html>

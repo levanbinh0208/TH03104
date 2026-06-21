@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Store - Trang chủ</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <h1>Phone Store</h1>
+        <nav>
+            <a th:href="@{/home}">Trang chủ</a>
+            <a th:href="@{/products}">Sản phẩm</a>
+            <a th:href="@{/cart}">Giỏ hàng</a>
+            <div class="user-menu" th:if="${session.fullName}">
+                <img th:src="@{/uploads/{file}(file=${session.avatarUrl})}"
+                     alt="Avatar"
+                     class="avatar">
+                <span id="userNameBtn"
+                      class="user-name"
+                      th:text="${session.fullName}">
+                </span>
+
+                <div id="profilePopup" class="profile-popup">
+                    <form th:action="@{/change-password}" method="post">
+                        <h4>Đổi mật khẩu</h4>
+
+                        <input type="password"
+                               name="oldPassword"
+                               placeholder="Mật khẩu cũ"
+                               required>
+
+                        <input type="password"
+                               name="newPassword"
+                               placeholder="Mật khẩu mới"
+                               required>
+
+                        <button type="submit">
+                            Cập nhật
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <a th:href="@{/logout}" th:if="${session.fullName}">Đăng xuất</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="search-bar">
+        <form th:action="@{/home}" method="get">
+            <input type="text" name="search" th:value="${searchTerm}"
+                   placeholder="Tìm kiếm sản phẩm..." />
+            <button type="submit">Tìm kiếm</button>
+        </form>
+    </div>
+
+    <section class="featured-products">
+        <h3 th:if="${searchTerm}" th:text="'Kết quả tìm kiếm cho: ' + ${searchTerm}"></h3>
+        <h3 th:if="${searchTerm == null}">Sản phẩm nổi bật</h3>
+
+        <div class="products-grid" th:if="${products != null and !products.isEmpty()}">
+            <div class="product-card" th:each="product : ${products}">
+                <img th:src="@{/uploads/{file}(file=${product.imageUrl})}"
+                     th:alt="${product.productName}">
+                <h4 th:text="${product.productName}"></h4>
+                <p th:text="${product.description}"></p>
+                <p class="price" th:text="${product.price} + ' VNĐ'"></p>
+                <button th:onclick="addToCart([[${product.productId}]])">Thêm vào giỏ</button>
+            </div>
+        </div>
+
+        <p th:if="${products.isEmpty()}" class="no-result">Không tìm thấy sản phẩm nào!</p>
+    </section>
+</main>
+
+<script>
+    function addToCart(productId) {
+        fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'productId=' + productId + '&quantity=1'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Đã thêm vào giỏ hàng!');
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(error => {
+                alert('Có lỗi xảy ra, vui lòng thử lại.');
+            });
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const btn = document.getElementById("userNameBtn");
+        const popup = document.getElementById("profilePopup");
+
+        if (!btn || !popup) return;
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+
+            popup.style.display =
+                popup.style.display === "block"
+                    ? "none"
+                    : "block";
+        });
+
+        popup.addEventListener("click", function (e) {
+            e.stopPropagation();
+        });
+
+        document.addEventListener("click", function () {
+            popup.style.display = "none";
+        });
+
+    });
+</script>
+</body>
+</html>

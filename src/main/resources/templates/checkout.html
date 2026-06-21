@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Store - Thanh toán</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/cart.css}">
+    <link rel="stylesheet" th:href="@{/css/checkout.css}">
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <h1>Phone Store</h1>
+        <nav>
+            <a th:href="@{/home}">Trang chủ</a>
+            <a th:href="@{/products}">Sản phẩm</a>
+            <a th:href="@{/cart}">Giỏ hàng</a>
+            <span th:if="${session.fullName}" th:text="${session.fullName}"></span>
+            <a th:href="@{/logout}" th:if="${session.fullName}">Đăng xuất</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="checkout-container">
+
+        <div class="checkout-form-section">
+            <h2>Thông tin đặt hàng</h2>
+
+            <form th:action="@{/cart/checkout}" method="post" id="checkoutForm">
+
+                <div class="form-group">
+                    <label for="receiverName">Người nhận <span class="required">*</span></label>
+                    <input type="text" id="receiverName" name="receiverName"
+                           th:value="${user != null ? user.fullName : ''}"
+                           placeholder="Nhập họ và tên người nhận"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Số điện thoại <span class="required">*</span></label>
+                    <input type="tel" id="phone" name="phone"
+                           th:value="${user != null ? user.phone : ''}"
+                           placeholder="Nhập số điện thoại"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="shippingAddress">Địa chỉ giao hàng <span class="required">*</span></label>
+                    <textarea id="shippingAddress" name="shippingAddress" rows="3"
+                              placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                              required
+                              th:text="${user != null ? user.address : ''}"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Phương thức thanh toán <span class="required">*</span></label>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="COD" checked>
+                            <div class="payment-card">
+                                <span class="payment-icon">💵</span>
+                                <div>
+                                    <strong>Thanh toán khi nhận hàng</strong>
+                                    <small>Trả tiền mặt khi giao hàng</small>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="BANK_TRANSFER">
+                            <div class="payment-card">
+                                <span class="payment-icon">🏦</span>
+                                <div>
+                                    <strong>Chuyển khoản ngân hàng</strong>
+                                    <small>Chuyển khoản trước khi giao</small>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="MOMO">
+                            <div class="payment-card">
+                                <span class="payment-icon">📱</span>
+                                <div>
+                                    <strong>Ví MoMo</strong>
+                                    <small>Thanh toán qua ứng dụng MoMo</small>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-place-order" id="submitBtn">
+                    <span>🛍️</span> Xác nhận đặt hàng
+                </button>
+            </form>
+        </div>
+
+        <div class="checkout-summary-section">
+            <h2>Đơn hàng của bạn</h2>
+
+            <div class="order-items">
+                <div class="order-item" th:each="item : ${cartItems}">
+                    <img th:src="@{${item.product.imageUrl}}"
+                         th:alt="${item.product.productName}">
+                    <div class="order-item-info">
+                        <span class="order-item-name" th:text="${item.product.productName}"></span>
+                        <span class="order-item-qty" th:text="'x' + ${item.quantity}"></span>
+                    </div>
+                    <span class="order-item-price"
+                          th:text="${#numbers.formatInteger(item.product.price * item.quantity, 0, 'POINT')} + ' VNĐ'">
+                    </span>
+                </div>
+            </div>
+
+            <div class="order-totals">
+                <div class="total-row">
+                    <span>Tạm tính:</span>
+                    <span th:text="${#numbers.formatInteger(total, 0, 'POINT')} + ' VNĐ'"></span>
+                </div>
+                <div class="total-row">
+                    <span>Phí vận chuyển:</span>
+                    <span class="free-shipping">Miễn phí</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Tổng cộng:</span>
+                    <span th:text="${#numbers.formatInteger(total, 0, 'POINT')} + ' VNĐ'"></span>
+                </div>
+            </div>
+
+            <div class="security-badge">
+                <span>Lưu ý :</span>
+                <span>Thông tin của bạn được bảo mật an toàn</span>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    document.querySelectorAll('.payment-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+            if (radio.checked) radio.closest('.payment-option').querySelector('.payment-card').classList.add('selected');
+        });
+    });
+    document.querySelector('.payment-option input:checked')
+        ?.closest('.payment-option')?.querySelector('.payment-card')?.classList.add('selected');
+
+    document.getElementById('checkoutForm').addEventListener('submit', () => {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Đang xử lý...';
+    });
+</script>
+
+</body>
+</html>

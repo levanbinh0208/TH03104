@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phone Store - Đơn hàng của tôi</title>
+  <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link rel="stylesheet" th:href="@{/css/orders.css}">
+  <link rel="stylesheet" th:href="@{/css/toast.css}">
+</head>
+<body>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<header>
+  <div class="header-content">
+    <h1>Phone Store</h1>
+    <nav>
+      <a th:href="@{/home}">Trang chủ</a>
+      <a th:href="@{/products}">Sản phẩm</a>
+      <a th:href="@{/cart}">Giỏ hàng</a>
+      <span th:if="${session.fullName}" th:text="${session.fullName}"></span>
+      <a th:href="@{/logout}" th:if="${session.fullName}">Đăng xuất</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="orders-header">
+    <h2>Đơn hàng của tôi</h2>
+    <a th:href="@{/products}" class="btn-continue">Tiếp tục mua sắm</a>
+  </div>
+
+  <div th:if="${orders == null or orders.isEmpty()}" class="empty-orders">
+    <div class="empty-icon">📦</div>
+    <h3>Bạn chưa có đơn hàng nào</h3>
+    <p>Hãy khám phá sản phẩm và đặt hàng ngay!</p>
+    <a th:href="@{/products}" class="btn-shop">Mua sắm ngay</a>
+  </div>
+
+  <!-- Danh sách đơn hàng -->
+  <div th:unless="${orders == null or orders.isEmpty()}" class="orders-list">
+    <div class="order-card" th:each="order : ${orders}">
+      <div class="order-card-header">
+        <div class="order-meta">
+          <span class="order-id">Đơn hàng #<span th:text="${order.orderId}"></span></span>
+          <span class="order-date"
+                th:text="${order.orderDate != null ? #dates.format(order.orderDate, 'dd/MM/yyyy HH:mm') : ''}">
+                    </span>
+        </div>
+        <span class="order-status"
+              th:classappend="${order.status == 'PENDING'} ? 'status-pending'
+                                     : (${order.status == 'COMPLETED'} ? 'status-completed'
+                                     : (${order.status == 'CANCELLED'} ? 'status-cancelled'
+                                     : 'status-processing'))"
+              th:text="${order.status == 'PENDING'} ? 'Chờ xác nhận'
+                               : (${order.status == 'PROCESSING'} ? 'Đang xử lý'
+                               : (${order.status == 'SHIPPING'} ? 'Đang giao hàng'
+                               : (${order.status == 'COMPLETED'} ? 'Hoàn thành'
+                               : 'Đã huỷ')))">
+                </span>
+      </div>
+
+      <div class="order-card-body">
+        <div class="order-info-grid">
+          <div class="order-info-item" th:if="${order.receiverName}">
+            <span class="info-label">👤 Người nhận</span>
+            <span th:text="${order.receiverName}"></span>
+          </div>
+          <div class="order-info-item" th:if="${order.phone}">
+            <span class="info-label">📞 Điện thoại</span>
+            <span th:text="${order.phone}"></span>
+          </div>
+          <div class="order-info-item" th:if="${order.shippingAddress}">
+            <span class="info-label">📍 Địa chỉ</span>
+            <span th:text="${order.shippingAddress}"></span>
+          </div>
+          <div class="order-info-item" th:if="${order.paymentMethod}">
+            <span class="info-label">💳 Thanh toán</span>
+            <span th:text="${order.paymentMethod == 'COD'} ? 'Tiền mặt khi nhận hàng'
+                                       : (${order.paymentMethod == 'BANK_TRANSFER'} ? 'Chuyển khoản ngân hàng'
+                                       : (${order.paymentMethod == 'MOMO'} ? 'Ví MoMo'
+                                       : ${order.paymentMethod}))">
+                        </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-card-footer">
+        <span class="order-total-label">Tổng tiền:</span>
+        <span class="order-total-amount"
+              th:text="${order.totalAmount != null ? #numbers.formatInteger(order.totalAmount, 0, 'POINT') + ' VNĐ' : '0 VNĐ'}">
+                </span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script th:src="@{/js/toast.js}"></script>
+</body>
+</html>
