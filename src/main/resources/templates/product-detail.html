@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.productName} + ' - Phone Store'"></title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <style>
+        .product-detail {
+            max-width: 1200px;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 20px;
+        }
+        .product-image {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .product-info h1 { font-size: 2.2rem; margin-bottom: 15px; }
+        .price { font-size: 2rem; color: #e11d48; font-weight: bold; }
+        .add-to-cart {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .product-detail { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <h1>Phone Store</h1>
+        <nav>
+            <a th:href="@{/home}">Trang chủ</a>
+            <a th:href="@{/products}">Sản phẩm</a>
+            <a th:href="@{/cart}">Giỏ hàng</a>
+            <span th:if="${session.fullName}" th:text="${session.fullName}"></span>
+            <a th:href="@{/logout}" th:if="${session.fullName}">Đăng xuất</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="product-detail" th:if="${product}">
+        <div>
+            <img th:src="${product.imageUrl}" th:alt="${product.productName}" class="product-image"
+                 onerror="this.src='/images/no-image.png'">
+        </div>
+        <div class="product-info">
+            <h1 th:text="${product.productName}"></h1>
+            <p class="price" th:text="${product.price} + ' VNĐ'"></p>
+            <p th:text="${product.description}"></p>
+
+            <p><strong>Số lượng còn lại:</strong> <span th:text="${product.quantity}"></span></p>
+
+            <button class="add-to-cart" th:onclick="addToCart([[${product.productId}]])">
+                Thêm vào giỏ hàng
+            </button>
+        </div>
+    </div>
+</main>
+
+<script>
+    function addToCart(productId) {
+        fetch('/cart/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'productId=' + productId + '&quantity=1'
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Đã thêm sản phẩm vào giỏ hàng!");
+                } else {
+                    alert("Có lỗi xảy ra!");
+                }
+            });
+    }
+</script>
+</body>
+</html>
