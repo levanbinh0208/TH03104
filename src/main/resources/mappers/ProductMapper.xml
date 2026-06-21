@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.com//DTD Mapper 3.0//EN"
+        "http://mybatis.com/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.phone_store.mapper.ProductMapper">
+
+    <resultMap id="ProductResultMap" type="com.example.phone_store.entity.Product">
+        <id     column="ProductId"    property="productId"/>
+        <result column="ProductName"  property="productName"/>
+        <result column="Description"  property="description"/>
+        <result column="Price"        property="price"/>
+        <result column="Quantity"     property="quantity"/>
+        <result column="ImageUrl"     property="imageUrl"/>
+        <result column="CategoryId"   property="categoryId"/>
+        <result column="CreatedAt"    property="createdAt"/>
+    </resultMap>
+
+    <select id="getAllProducts" resultMap="ProductResultMap">
+        SELECT ProductId, ProductName, Description, Price, Quantity,
+               ImageUrl, CategoryId, CreatedAt
+        FROM Products
+        where isDeleted= '0'
+        ORDER BY CreatedAt DESC
+    </select>
+
+    <select id="getAllProductsHot" resultMap="ProductResultMap">
+        SELECT ProductId, ProductName, Description, Price, Quantity,
+               ImageUrl, CategoryId, CreatedAt
+        FROM Products WHERE IsFeatured = 1
+        ORDER BY CreatedAt DESC
+    </select>
+
+    <select id="searchProducts" resultMap="ProductResultMap">
+        SELECT ProductId, ProductName, Description, Price, Quantity,
+               ImageUrl, CategoryId, CreatedAt
+        FROM Products
+        WHERE ProductName LIKE CONCAT('%', #{keyword}, '%')
+           OR Description LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY CreatedAt DESC
+    </select>
+
+    <select id="getProductById" resultMap="ProductResultMap">
+        SELECT ProductId, ProductName, Description, Price, Quantity,
+               ImageUrl, CategoryId, CreatedAt
+        FROM Products
+        WHERE ProductId = #{productId}
+    </select>
+
+    <insert id="insertProduct" parameterType="com.example.phone_store.entity.Product"
+            useGeneratedKeys="true" keyProperty="productId">
+        INSERT INTO Products (ProductName, Description, Price, Quantity, ImageUrl, CategoryId)
+        VALUES (#{productName}, #{description}, #{price}, #{quantity}, #{imageUrl}, #{categoryId})
+    </insert>
+
+    <update id="updateProduct" parameterType="com.example.phone_store.entity.Product">
+        UPDATE Products
+        SET ProductName = #{productName},
+            Description   = #{description},
+            Price         = #{price},
+            Quantity      = #{quantity},
+            ImageUrl      = #{imageUrl},
+            CategoryId    = #{categoryId}
+        WHERE ProductId = #{productId}
+    </update>
+
+    <delete id="deleteProduct">
+        upDATE Products
+            SET IsDeleted = 1
+            WHERE ProductId = #{productId}
+    </delete>
+
+    <select id="getProductsByCategory" resultMap="ProductResultMap">
+        SELECT * FROM Products
+        WHERE CategoryId = #{categoryId}
+        ORDER BY CreatedAt DESC
+    </select>
+
+    <select id="findById" resultMap="ProductResultMap">
+        SELECT ProductId, ProductName, Description, Price, Quantity, ImageUrl, CategoryId, CreatedAt
+        FROM Products
+        WHERE ProductId = #{productId}
+    </select>
+
+    <select id="findAll" resultType="com.example.phone_store.entity.Product">
+        SELECT * FROM Products
+    </select>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.com//DTD Mapper 3.0//EN"
+        "http://mybatis.com/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.phone_store.mapper.OrderDetailMapper">
+
+    <resultMap id="orderDetailMap" type="com.example.phone_store.entity.OrderDetail">
+        <id property="orderDetailId" column="OrderDetailId"/>
+        <result property="quantity"  column="Quantity"/>
+        <result property="price"     column="UnitPrice"/>
+        <association property="order" javaType="com.example.phone_store.entity.Order">
+            <id property="orderId" column="OrderId"/>
+        </association>
+        <association property="product" javaType="com.example.phone_store.entity.Product">
+            <id     property="productId"   column="ProductId"/>
+            <result property="productName" column="ProductName"/>
+            <result property="imageUrl"    column="ImageUrl"/>
+            <result property="price"       column="ProductPrice"/>
+        </association>
+    </resultMap>
+
+    <insert id="save" parameterType="com.example.phone_store.entity.OrderDetail"
+            useGeneratedKeys="true" keyProperty="orderDetailId">
+        INSERT INTO OrderDetails(OrderId, ProductId, Quantity, UnitPrice)
+        VALUES(#{order.orderId}, #{product.productId}, #{quantity}, #{price})
+    </insert>
+
+    <select id="findByOrderId" resultMap="orderDetailMap">
+        SELECT
+        od.OrderDetailId,
+        od.OrderId,
+        od.ProductId,
+        od.Quantity,
+        od.UnitPrice,
+        p.ProductName,
+        p.ImageUrl,
+        p.Price AS ProductPrice
+        FROM OrderDetails od
+        JOIN Products p ON od.ProductId = p.ProductId
+        WHERE od.OrderId = #{orderId}
+    </select>
+
+</mapper>
