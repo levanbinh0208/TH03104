@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Page</title>
+    <link rel="stylesheet" th:href="@{/css/admin-common.css}">
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>📱 PhoneStore</h2>
+        <nav>
+            <a th:href="@{/admin/dashboard}">Dashboard</a>
+            <a th:href="@{/admin/products}">Sản phẩm</a>
+            <a th:href="@{/admin/users}">Khách hàng</a>
+            <a th:href="@{/admin/orders}">Đơn hàng</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 th:text='${pageTitle}'>Tiêu đề</h1>
+        </div>
+
+        <div class="card">
+            <!-- Nội dung từng trang -->
+        </div>
+    </main>
+</div>
+</body>
+</html>

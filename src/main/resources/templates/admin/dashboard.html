@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin Dashboard - PhoneStore</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="admin-container">
+    <aside class="sidebar">
+        <div class="logo"><h2>📱 PhoneStore</h2></div>
+        <nav>
+            <ul>
+                <li><a th:href="@{/admin/dashboard}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a th:href="@{/admin/products}"><i class="fas fa-box"></i> Sản phẩm</a></li>
+                <li><a th:href="@{/admin/users}"><i class="fas fa-users"></i> Khách hàng</a></li>
+                <li><a th:href="@{/admin/orders}"><i class="fas fa-shopping-cart"></i> Đơn hàng</a></li>
+                <li><a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <h1>Dashboard</h1>
+            <div class="user-info">Xin chào, <strong th:text="${fullName}"></strong></div>
+        </header>
+
+        <section class="stats">
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-box"></i></div>
+                <div class="card-body">
+                    <h3>Tổng sản phẩm</h3>
+                    <p th:text="${totalProducts}"></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-users"></i></div>
+                <div class="card-body">
+                    <h3>Khách hàng</h3>
+                    <p th:text="${totalUsers}"></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="card-body">
+                    <h3>Đơn hàng</h3>
+                    <p th:text="${totalOrders}"></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="recent">
+            <h2>Sản phẩm gần đây</h2>
+            <table class="product-table">
+                <thead>
+                <tr><th>Hình</th><th>Tên</th><th>Giá</th><th>Tồn kho</th></tr>
+                </thead>
+                <tbody>
+                <tr th:if="${products == null or #lists.isEmpty(products)}">
+                    <td colspan="4" style="text-align:center; padding:20px;">Chưa có sản phẩm nào</td>
+                </tr>
+                <tr th:each="p : ${products}">
+                    <td>
+                        <img class="product-image"
+                             th:src="@{/uploads/{file}(file=${p.imageUrl})}">
+                    </td>
+                    <td th:text="${p.productName}">Tên SP</td>
+                    <td th:text="${#numbers.formatDecimal(p.price,0,0)} + ' VND'"></td>
+                    <td th:text="${p.quantity}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>
