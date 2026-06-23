@@ -9,15 +9,15 @@ import java.util.List;
 @Mapper
 public interface CartMapper {
 
-    List<CartItem> getCartByUserId(@Param("userId") Integer userId);
+    List<CartItem> getCartByUserId(@Param("userId") Long userId);
 
-    Integer findQuantity(@Param("userId") Integer userId, @Param("productId") Integer productId);
+    Integer findQuantity(@Param("userId") Long userId, @Param("productId") Integer productId);
 
-    void insertCartItem(@Param("userId") Integer userId, @Param("productId") Integer productId, @Param("quantity") Integer quantity);
+    void insertCartItem(@Param("userId") Long userId, @Param("productId") Integer productId, @Param("quantity") Integer quantity);
 
-    void updateQuantity(@Param("userId") Integer userId, @Param("productId") Integer productId, @Param("quantity") Integer quantity);
+    void updateQuantity(@Param("userId") Long userId, @Param("productId") Integer productId, @Param("quantity") Integer quantity);
 
-    void deleteCartItem(@Param("userId") Integer userId, @Param("productId") Integer productId);
+    void deleteCartItem(@Param("userId") Long userId, @Param("productId") Integer productId);
 
-    void clearCart(@Param("userId") Integer userId);
+    void clearCart(@Param("userId") Long userId);
 }

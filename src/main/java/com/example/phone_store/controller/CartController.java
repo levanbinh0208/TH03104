@@ -32,13 +32,13 @@ public class CartController {
     @Autowired
     private OrderMapper orderMapper;
 
-    private Integer getUserId(HttpSession session) {
-        return (Integer) session.getAttribute("userId");
+    private Long getUserId(HttpSession session) {
+        return (Long) session.getAttribute("userId");
     }
 
     @GetMapping
     public String viewCart(HttpSession session, Model model) {
-        Integer userId = getUserId(session);
+        Long userId = getUserId(session);
         if (userId == null) return "redirect:/login";
 
         List<CartItem> cartItems = cartService.getCart(userId);
@@ -55,7 +55,7 @@ public class CartController {
             HttpSession session) {
 
         Map<String, Object> result = new HashMap<>();
-        Integer userId = getUserId(session);
+        Long userId = getUserId(session);
 
         if (userId == null) {
             result.put("success", false);
@@ -72,7 +72,7 @@ public class CartController {
     public String updateQuantity(@RequestParam("productId") Integer productId, @RequestParam("quantity") Integer quantity,
                                  HttpSession session,RedirectAttributes redirectAttributes) {
 
-        Integer userId = getUserId(session);
+        Long userId = getUserId(session);
         if (userId == null) return "redirect:/login";
 
         cartService.updateQuantity(userId, productId, quantity);
@@ -86,7 +86,7 @@ public class CartController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        Integer userId = (Integer) session.getAttribute("userId");
+        Long userId = (Long) session.getAttribute("userId");
         cartService.removeItem(userId, id);
         redirectAttributes.addFlashAttribute("successMessage", "Đã xóa sản phẩm khỏi giỏ hàng!");
         return "redirect:/cart";
@@ -94,7 +94,7 @@ public class CartController {
 
     @GetMapping("/clear")
     public String clearCart(HttpSession session) {
-        Integer userId = getUserId(session);
+        Long userId = getUserId(session);
         if (userId == null) return "redirect:/login";
         cartService.clearCart(userId);
         return "redirect:/cart";
@@ -102,7 +102,7 @@ public class CartController {
 
     @GetMapping("/checkout")
     public String checkoutPage(HttpSession session, Model model) {
-        Integer userId = getUserId(session);
+        Long userId = getUserId(session);
         if (userId == null) return "redirect:/login";
 
         List<CartItem> cartItems = cartService.getCart(userId);
@@ -124,7 +124,7 @@ public class CartController {
             @RequestParam("paymentMethod") String paymentMethod,
             RedirectAttributes ra) {
 
-        Integer userId = getUserId(session);
+        Long userId = getUserId(session);
         if (userId == null) return "redirect:/login";
 
         List<CartItem> cartItems = cartService.getCart(userId);

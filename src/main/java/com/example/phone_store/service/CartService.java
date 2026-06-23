@@ -13,11 +13,11 @@ public class CartService {
     @Autowired
     private CartMapper cartMapper;
 
-    public List<CartItem> getCart(Integer userId) {
+    public List<CartItem> getCart(Long userId) {
         return cartMapper.getCartByUserId(userId);
     }
 
-    public void addToCart(Integer userId, Integer productId, Integer quantity) {
+    public void addToCart(Long userId, Integer productId, Integer quantity) {
         Integer existingQty = cartMapper.findQuantity(userId, productId);
         if (existingQty != null) {
             cartMapper.updateQuantity(userId, productId, existingQty + quantity);
@@ -26,7 +26,7 @@ public class CartService {
         }
     }
 
-    public void updateQuantity(Integer userId, Integer productId, Integer quantity) {
+    public void updateQuantity(Long userId, Integer productId, Integer quantity) {
         if (quantity <= 0) {
             cartMapper.deleteCartItem(userId, productId);
         } else {
@@ -34,11 +34,11 @@ public class CartService {
         }
     }
 
-    public void removeItem(Integer userId, Integer productId) {
+    public void removeItem(Long userId, Integer productId) {
         cartMapper.deleteCartItem(userId, productId);
     }
 
-    public void clearCart(Integer userId) {
+    public void clearCart(Long userId) {
         cartMapper.clearCart(userId);
     }
 
