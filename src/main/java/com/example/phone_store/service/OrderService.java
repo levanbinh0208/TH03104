@@ -23,7 +23,7 @@ public class OrderService {
         orderMapper.save(order);
     }
 
-    public List<Order> getOrdersByUser(Integer userId) {
+    public List<Order> getOrdersByUser(Long userId) {
         return orderMapper.findByUserId(userId);
     }
 

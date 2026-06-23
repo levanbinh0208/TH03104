@@ -20,11 +20,13 @@ public class OrderController {
 
     @GetMapping("/orders")
     public String orders(HttpSession session, Model model) {
-        Integer userId = (Integer) session.getAttribute("userId");
+        Object sessionUserId = session.getAttribute("userId");
 
-        if (userId == null) {
+        if (sessionUserId == null) {
             return "redirect:/login";
         }
+
+        Long userId = ((Number) sessionUserId).longValue();
 
         List<Order> orders = orderService.getOrdersByUser(userId);
         model.addAttribute("orders", orders);
