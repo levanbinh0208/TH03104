@@ -148,4 +148,23 @@ public class UserService {
 
         return true;
     }
+
+    public String checkDuplicate(String username, String email) {
+        if (userMapper.findByUsername(username) != null) {
+            return "Tên đăng nhập \"" + username + "\" đã được sử dụng. Vui lòng chọn tên khác.";
+        }
+        if (userMapper.findByEmail(email) != null) {
+            return "Email \"" + email + "\" đã được đăng ký. Bạn có thể đăng nhập hoặc lấy lại mật khẩu.";
+        }
+        return null;
+    }
+
+    public boolean register(User user) {
+        try {
+            return userMapper.insert(user) > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

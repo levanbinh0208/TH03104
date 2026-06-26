@@ -29,7 +29,7 @@ public class ProductController {
 
     private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
-    @GetMapping({"/", "/admin"})
+    @GetMapping({"/product", "/admin"})
     public String home(@RequestParam(required = false) String search, Model model) {
         if (search != null && !search.trim().isEmpty()) {
             model.addAttribute("products", productService.searchProducts(search.trim()));
