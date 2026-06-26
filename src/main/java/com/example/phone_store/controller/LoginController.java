@@ -77,15 +77,14 @@ public class LoginController {
             return "forgot-password";
         }
 
-        String token = userService.createResetToken(user);
-        boolean sent = userService.sendResetPasswordEmail(user.getEmail(), token);
+        boolean sent = userService.resetPasswordAndSendEmail(user.getEmail());
 
         if (!sent) {
             model.addAttribute("error", "Không thể gửi email. Vui lòng thử lại sau!");
             return "forgot-password";
         }
 
-        model.addAttribute("success", "Link đặt lại mật khẩu đã được gửi đến email của bạn!");
+        model.addAttribute("success", "Mật khẩu tới đã được gửi về email của bạn!");
         return "forgot-password";
     }
 
