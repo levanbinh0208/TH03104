@@ -148,4 +148,8 @@ public class UserService {
 
         return true;
     }
+
+    public void changePassword(Long userId, String newPassword) {
+        userMapper.updatePassword(userId, newPassword);
+    }
 }

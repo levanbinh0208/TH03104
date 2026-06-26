@@ -8,6 +8,13 @@
 </head>
 <body>
 <header>
+    <div th:if="${success}" class="alert-success">
+        <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${error}" class="alert-error">
+        <span th:text="${error}"></span>
+    </div>
     <div class="header-content">
         <h1>Phone Store</h1>
         <nav>
