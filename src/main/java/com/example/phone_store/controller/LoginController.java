@@ -127,4 +127,32 @@ public class LoginController {
         redirectAttributes.addFlashAttribute("success", "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.");
         return "redirect:/login";
     }
+
+    @PostMapping("/change-password")
+    public String changePassword(
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        if (!user.getPasswordHash().equals(oldPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu cũ không chính xác!");
+            return "redirect:/home";
+        }
+
+        userService.changePassword(user.getUserId(), newPassword);
+
+        user.setPasswordHash(newPassword);
+        session.setAttribute("loggedInUser", user);
+
+        redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công!");
+
+        return "redirect:/home";
+    }
 }

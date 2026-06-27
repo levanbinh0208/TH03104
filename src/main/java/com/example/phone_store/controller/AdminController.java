@@ -22,9 +22,7 @@ public class AdminController {
     private final OrderService   orderService;
     private final UserService    userService;
 
-    public AdminController(ProductService productService,
-                           OrderService orderService,
-                           UserService userService) {
+    public AdminController(ProductService productService, OrderService orderService, UserService userService) {
         this.productService = productService;
         this.orderService   = orderService;
         this.userService    = userService;
@@ -40,7 +38,6 @@ public class AdminController {
         return o != null ? o.toString() : "";
     }
 
-    // ─── Dashboard ───────────────────────────────────────────────────────────
     @GetMapping({"/admin", "/admin/dashboard"})
     public String adminDashboard(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/login";
@@ -58,11 +55,8 @@ public class AdminController {
         return "admin/dashboard";
     }
 
-    // ─── Quản lý Người dùng ──────────────────────────────────────────────────
     @GetMapping("/admin/users")
-    public String listUsers(HttpSession session, Model model,
-                            @RequestParam(required = false) String success,
-                            @RequestParam(required = false) String error) {
+    public String listUsers(HttpSession session, Model model, @RequestParam(required = false) String success, @RequestParam(required = false) String error) {
         if (!isAdmin(session)) return "redirect:/login";
 
         model.addAttribute("users",    userService.findAll());
@@ -73,10 +67,7 @@ public class AdminController {
     }
 
     @PostMapping("/admin/users/role")
-    public String updateUserRole(HttpSession session,
-                                 @RequestParam Integer userId,
-                                 @RequestParam String roleName,
-                                 RedirectAttributes ra) {
+    public String updateUserRole(HttpSession session, @RequestParam Integer userId, @RequestParam String roleName, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/login";
         boolean ok = userService.updateRole(userId, roleName);
         if (ok) ra.addAttribute("success", "Cập nhật quyền thành công!");
@@ -85,9 +76,7 @@ public class AdminController {
     }
 
     @GetMapping("/admin/users/delete/{id}")
-    public String deleteUser(HttpSession session,
-                             @PathVariable Integer id,
-                             RedirectAttributes ra) {
+    public String deleteUser(HttpSession session, @PathVariable Integer id, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/login";
         Integer myId = (Integer) session.getAttribute("userId");
         if (myId != null && myId.equals(id)) {
@@ -100,11 +89,8 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // ─── Quản lý Đơn hàng ────────────────────────────────────────────────────
     @GetMapping("/admin/orders")
-    public String listOrders(HttpSession session, Model model,
-                             @RequestParam(required = false) String success,
-                             @RequestParam(required = false) String error) {
+    public String listOrders(HttpSession session, Model model, @RequestParam(required = false) String success, @RequestParam(required = false) String error) {
         if (!isAdmin(session)) return "redirect:/login";
 
         List<Order> orders = orderService.findAll();
@@ -116,9 +102,7 @@ public class AdminController {
     }
 
     @GetMapping("/admin/orders/{id}")
-    public String orderDetail(HttpSession session,
-                              @PathVariable Integer id,
-                              Model model) {
+    public String orderDetail(HttpSession session, @PathVariable Integer id, Model model) {
         if (!isAdmin(session)) return "redirect:/login";
 
         Order order = orderService.findById(id);
@@ -132,10 +116,7 @@ public class AdminController {
     }
 
     @PostMapping("/admin/orders/status")
-    public String updateOrderStatus(HttpSession session,
-                                    @RequestParam Integer orderId,
-                                    @RequestParam String status,
-                                    RedirectAttributes ra) {
+    public String updateOrderStatus(HttpSession session, @RequestParam Integer orderId, @RequestParam String status, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/login";
         boolean ok = orderService.updateStatus(orderId, status);
         if (ok) ra.addAttribute("success", "Cập nhật trạng thái thành công!");
@@ -144,9 +125,7 @@ public class AdminController {
     }
 
     @GetMapping("/admin/orders/delete/{id}")
-    public String deleteOrder(HttpSession session,
-                              @PathVariable Integer id,
-                              RedirectAttributes ra) {
+    public String deleteOrder(HttpSession session, @PathVariable Integer id, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/login";
         boolean ok = orderService.deleteById(id);
         if (ok) ra.addAttribute("success", "Đã xóa đơn hàng #" + id);

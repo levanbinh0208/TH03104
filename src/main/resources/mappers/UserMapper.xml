@@ -60,9 +60,7 @@
     </select>
 
     <update id="updatePassword">
-        UPDATE Users
-        SET PasswordHash = #{password}
-        WHERE UserId = #{userId}
+        UPDATE Users SET PasswordHash = #{password} WHERE UserId = #{userId}
     </update>
 
 </mapper>

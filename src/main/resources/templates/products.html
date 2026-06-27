@@ -48,6 +48,7 @@
     </section>
 </main>
 
+<div th:replace="~{fragments/toast :: toastBundle}"></div>
 <script>
     function addToCart(productId) {
         fetch('/cart/add', {
@@ -60,13 +61,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Đã thêm vào giỏ hàng!');
+                    showToast('Đã thêm vào giỏ hàng!', 'success');
                 } else {
-                    alert(data.message || 'Có lỗi xảy ra');
+                    showToast(data.message || 'Có lỗi xảy ra', 'error');
                 }
             })
             .catch(error => {
-                alert('Có lỗi xảy ra, vui lòng thử lại.');
+                showToast('Có lỗi xảy ra, vui lòng thử lại.', 'error');
             });
     }
 </script>
