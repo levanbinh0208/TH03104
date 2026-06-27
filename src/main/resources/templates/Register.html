@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Phone Store</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet" th:href="@{/css/register.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="page-wrapper">
+    <div class="login-card register-card">
+
+        <div class="brand">
+            <h1>📱 PhoneStore</h1>
+            <p>Tạo tài khoản mới</p>
+        </div>
+
+        <div th:if="${error}" class="error-msg">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div th:if="${success}" class="success-msg">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+
+        <form th:action="@{/register}" method="post" id="registerForm" novalidate>
+            <div class="form-group">
+                <label for="fullName">Họ và tên <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="fullName" name="fullName"
+                           placeholder="Nhập họ và tên"
+                           th:value="${param.fullName}"
+                           maxlength="100" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Tên đăng nhập <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" name="username"
+                           placeholder="Tối thiểu 4 ký tự, không dấu"
+                           th:value="${param.username}"
+                           maxlength="50" required>
+                </div>
+                <small class="form-hint">
+                    <i class="fas fa-info-circle"></i>
+                    Chỉ dùng chữ cái, số và dấu gạch dưới (_)
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email"
+                           placeholder="Nhập địa chỉ email"
+                           th:value="${param.email}"
+                           maxlength="100" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Số điện thoại</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="phone" name="phone"
+                           placeholder="Nhập số điện thoại (tuỳ chọn)"
+                           th:value="${param.phone}"
+                           maxlength="15">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Địa chỉ</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" id="address" name="address"
+                           placeholder="Nhập địa chỉ (tuỳ chọn)"
+                           th:value="${param.address}"
+                           maxlength="200">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu <span class="required">*</span></label>
+                <div class="pwd-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password"
+                           placeholder="Tối thiểu 6 ký tự" required>
+                    <button type="button" class="toggle-pwd" onclick="togglePwd('password','eye1')">
+                        <i class="fas fa-eye" id="eye1"></i>
+                    </button>
+                </div>
+                <div class="strength-bar-wrap" id="strengthWrap" style="display:none">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <small class="strength-label" id="strengthLabel"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Xác nhận mật khẩu <span class="required">*</span></label>
+                <div class="pwd-wrapper">
+                    <i class="fas fa-shield-alt"></i>
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           placeholder="Nhập lại mật khẩu" required>
+                    <button type="button" class="toggle-pwd" onclick="togglePwd('confirmPassword','eye2')">
+                        <i class="fas fa-eye" id="eye2"></i>
+                    </button>
+                </div>
+                <small class="match-hint" id="matchHint"></small>
+            </div>
+
+            <button type="submit" class="btn-login" id="submitBtn">
+                <i class="fas fa-user-plus"></i> Đăng ký
+            </button>
+        </form>
+
+        <div class="signup-row">
+            Đã có tài khoản?
+            <a th:href="@{/login}">Đăng nhập ngay</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function togglePwd(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    const pwdInput    = document.getElementById('password');
+    const confirmPwd  = document.getElementById('confirmPassword');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthLabel = document.getElementById('strengthLabel');
+    const strengthWrap  = document.getElementById('strengthWrap');
+    const matchHint     = document.getElementById('matchHint');
+
+    pwdInput.addEventListener('input', function () {
+        const val = this.value;
+        strengthWrap.style.display = val.length > 0 ? 'block' : 'none';
+
+        let score = 0;
+        if (val.length >= 6)  score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const levels = [
+            { label: 'Rất yếu',  color: '#ef4444', width: '20%' },
+            { label: 'Yếu',      color: '#f97316', width: '40%' },
+            { label: 'Trung bình', color: '#eab308', width: '60%' },
+            { label: 'Mạnh',     color: '#22c55e', width: '80%' },
+            { label: 'Rất mạnh', color: '#16a34a', width: '100%' },
+        ];
+        const lvl = levels[Math.min(score, levels.length) - 1] || levels[0];
+        strengthBar.style.width = lvl.width;
+        strengthBar.style.backgroundColor = lvl.color;
+        strengthLabel.textContent = lvl.label;
+        strengthLabel.style.color = lvl.color;
+
+        checkMatch();
+    });
+
+    confirmPwd.addEventListener('input', checkMatch);
+
+    function checkMatch() {
+        if (confirmPwd.value === '') {
+            matchHint.textContent = '';
+            return;
+        }
+        if (pwdInput.value === confirmPwd.value) {
+            matchHint.textContent = '✓ Mật khẩu khớp';
+            matchHint.style.color = '#16a34a';
+        } else {
+            matchHint.textContent = '✗ Mật khẩu chưa khớp';
+            matchHint.style.color = '#ef4444';
+        }
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        const username = document.getElementById('username').value.trim();
+        const pwd      = pwdInput.value;
+        const confirm  = confirmPwd.value;
+
+        if (!/^[a-zA-Z0-9_]{4,}$/.test(username)) {
+            e.preventDefault();
+            alert('Tên đăng nhập phải có ít nhất 4 ký tự, chỉ gồm chữ cái, số và dấu _');
+            return;
+        }
+        if (pwd.length < 6) {
+            e.preventDefault();
+            alert('Mật khẩu phải có ít nhất 6 ký tự!');
+            return;
+        }
+        if (pwd !== confirm) {
+            e.preventDefault();
+            alert('Mật khẩu xác nhận không khớp!');
+        }
+    });
+</script>
+</body>
+</html>
