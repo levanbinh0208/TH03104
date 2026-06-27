@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý Sản phẩm - Admin</title>
   <link rel="stylesheet" th:href="@{/css/admin.css}">
-  <link rel="stylesheet" th:href="@{/css/toast.css}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     .sidebar ul { list-style:none; padding:0; margin-top:24px; }
@@ -233,6 +232,6 @@
     if (noResult) noResult.style.display = (visible === 0 && rows.length > 0) ? '' : 'none';
   }
 </script>
-<script th:src="@{/js/toast.js}"></script>
+<div th:replace="~{fragments/toast :: toastBundle}"></div>
 </body>
 </html>

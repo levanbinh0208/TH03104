@@ -15,16 +15,6 @@
             <p>Chào mừng bạn quay trở lại</p>
         </div>
 
-        <div th:if="${error}" class="error-msg">
-            <i class="fas fa-exclamation-circle"></i>
-            <span th:text="${error}"></span>
-        </div>
-
-        <div th:if="${success}" class="success-msg">
-            <i class="fas fa-check-circle"></i>
-            <span th:text="${success}"></span>
-        </div>
-
         <form th:action="@{/login}" method="post">
             <div class="form-group">
                 <label for="username">Tên đăng nhập</label>
@@ -84,5 +74,6 @@
         document.getElementById("username").focus();
     }
 </script>
+<div th:replace="~{fragments/toast :: toastBundle}"></div>
 </body>
 </html>

@@ -28,9 +28,6 @@
         .btn-save:hover { background: #2c5282; }
         .btn-delete{ background: #e53e3e; color: #fff; border: none; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; text-decoration: none; }
         .btn-delete:hover { background: #c53030; }
-        .alert        { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
-        .alert-success{ background: #c6f6d5; color: #22543d; }
-        .alert-error  { background: #fed7d7; color: #742a2a; }
         .avatar-circle {
             width: 36px; height: 36px; border-radius: 50%;
             background: #e2e8f0; display: flex; align-items: center;
@@ -73,10 +70,6 @@
             <h1>Quản lý Người dùng</h1>
             <div class="user-info">Xin chào, <strong th:text="${fullName}"></strong></div>
         </header>
-
-        <!-- Alert messages -->
-        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
-        <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
 
         <!-- Toolbar -->
         <div class="users-header">
@@ -166,5 +159,6 @@
         });
     }
 </script>
+<div th:replace="~{fragments/toast :: toastBundle}"></div>
 </body>
 </html>

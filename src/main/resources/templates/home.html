@@ -76,6 +76,8 @@
     </section>
 </main>
 
+<div th:replace="~{fragments/toast :: toastBundle}"></div>
+
 <script>
     function addToCart(productId) {
         fetch('/cart/add', {
@@ -88,17 +90,17 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Đã thêm vào giỏ hàng!');
+                    showToast('Đã thêm vào giỏ hàng!', 'success');
                 } else {
-                    alert(data.message || 'Có lỗi xảy ra');
+                    showToast(data.message || 'Có lỗi xảy ra', 'error');
                 }
             })
             .catch(error => {
-                alert('Có lỗi xảy ra, vui lòng thử lại.');
+                showToast('Có lỗi xảy ra, vui lòng thử lại.', 'error');
             });
     }
-    document.addEventListener("DOMContentLoaded", function () {
 
+    document.addEventListener("DOMContentLoaded", function () {
         const btn = document.getElementById("userNameBtn");
         const popup = document.getElementById("profilePopup");
 
@@ -106,11 +108,8 @@
 
         btn.addEventListener("click", function (e) {
             e.stopPropagation();
-
             popup.style.display =
-                popup.style.display === "block"
-                    ? "none"
-                    : "block";
+                popup.style.display === "block" ? "none" : "block";
         });
 
         popup.addEventListener("click", function (e) {
@@ -120,7 +119,6 @@
         document.addEventListener("click", function () {
             popup.style.display = "none";
         });
-
     });
 </script>
 </body>
