@@ -8,12 +8,14 @@ import com.example.phone_store.entity.User;
 import com.example.phone_store.mapper.OrderDetailMapper;
 import com.example.phone_store.mapper.OrderMapper;
 import com.example.phone_store.service.CartService;
+import com.example.phone_store.service.OrderEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,9 @@ public class CartController {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private OrderEmailService orderEmailService;
 
     private Long getUserId(HttpSession session) {
         return (Long) session.getAttribute("userId");
@@ -109,6 +114,7 @@ public class CartController {
         if (cartItems.isEmpty()) return "redirect:/cart";
         User user = (User) session.getAttribute("loggedInUser");
 
+
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("total", cartService.getTotal(cartItems));
         model.addAttribute("user", user);
@@ -145,6 +151,7 @@ public class CartController {
 
         orderMapper.save(order);
 
+        List<OrderDetail> savedDetails = new ArrayList<>();
         for (CartItem item : cartItems) {
             OrderDetail detail = new OrderDetail();
             detail.setOrder(order);
@@ -152,10 +159,18 @@ public class CartController {
             detail.setQuantity(item.getQuantity());
             detail.setPrice(item.getProduct().getPrice());
             orderDetailMapper.save(detail);
+            savedDetails.add(detail);
         }
 
         cartService.clearCart(userId);
-        ra.addFlashAttribute("successMessage", "Đặt hàng thành công! Chúng tôi sẽ liên hệ sớm nhất.");
+
+        User user = (User) session.getAttribute("loggedInUser");
+        if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
+            orderEmailService.sendOrderConfirmation(user.getEmail(), order, savedDetails);
+        }
+
+        ra.addFlashAttribute("successMessage",
+                "Đặt hàng thành công! Email xác nhận đã được gửi tới " + (user != null ? user.getEmail() : "bạn") + ".");
         return "redirect:/orders";
     }
 }
